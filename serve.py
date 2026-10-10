@@ -19,6 +19,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Cache-Control', 'no-cache')
         super().end_headers()
 
+    def send_head(self):
+        # hidden files and folders (.git, .gitignore, …) are not part of the site
+        if any(part.startswith('.') for part in self.path.split('?')[0].split('/')):
+            self.send_error(404, 'Not found')
+            return None
+        return super().send_head()
+
 
 parser = argparse.ArgumentParser(description='Serve this folder.')
 parser.add_argument('port', nargs='?', type=int, default=5180)
